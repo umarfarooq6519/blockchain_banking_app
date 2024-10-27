@@ -4,7 +4,7 @@ import { initializeApp } from "firebase/app";
 const env = import.meta.env; // importing .env variables
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  apiKey: env.VITE_FIREBASE_API_KEY,
   authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,

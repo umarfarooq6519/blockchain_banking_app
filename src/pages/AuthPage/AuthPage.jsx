@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../contexts/authContext";
+import { useAuthContext } from "../../contexts/authContext";
+
+import WrapperSect from "./sections/Auth.Wrapper";
+import ContentSect from "./sections/Auth.Content";
 
 function AuthPage() {
   const { user, signInWithGoogle } = useAuthContext();
@@ -13,7 +16,7 @@ function AuthPage() {
     }
   }, [user]);
 
-  const handleClick = async () => {
+  const handleGoogleAuth = async () => {
     const result = await signInWithGoogle();
     if (result) {
       navigate("/dashboard");
@@ -24,10 +27,9 @@ function AuthPage() {
   // #################### AuthPage ####################
 
   return (
-    <div>
-      <button type="button" onClick={handleClick}>
-        Sign in
-      </button>
+    <div className="grid min-h-screen grid-cols-6 gap-4">
+      <WrapperSect />
+      <ContentSect handleGoogleAuth={handleGoogleAuth} />
     </div>
   );
 }
