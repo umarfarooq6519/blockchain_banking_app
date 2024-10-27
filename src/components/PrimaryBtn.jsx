@@ -15,7 +15,6 @@ const PrimaryBtn = ({ text, icon }) => {
 };
 
 PrimaryBtn.propTypes = {
-  onClick: PropTypes.func.isRequired,
   text: PropTypes.string.isRequired,
   icon: PropTypes.string,
 };

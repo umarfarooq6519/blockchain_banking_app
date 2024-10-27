@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth, sendSignInLinkToEmail, signOut } from "firebase/auth";
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -12,10 +12,16 @@ import app from "../firebase";
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+const actionCodeSettings = {
+  url: "http://localhost:5173/",
+  handleCodeInApp: true,
+};
+
 function useAuth() {
   // manage all auth functionality
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -48,6 +54,20 @@ function useAuth() {
     }
   };
 
+  const signinWithEmail = async (email) => {
+    setIsLoading(true);
+    try {
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      window.localStorage.setItem("signinEmail", email);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const Signout = async () => {
     setIsLoading(true);
     try {
@@ -63,7 +83,15 @@ function useAuth() {
     }
   };
 
-  return { user, isLoading, signInWithGoogle, Signout };
+  return {
+    user,
+    isLoading,
+    error,
+    setError,
+    signInWithGoogle,
+    signinWithEmail,
+    Signout,
+  };
 }
 
 export default useAuth;
