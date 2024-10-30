@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 
 import { useAuthContext } from "../../contexts/authContext";
@@ -12,8 +12,16 @@ import brand_logo from "/brand_logo.svg";
 import arrow_right from "/arrow_right.svg";
 
 function AuthPage() {
-  const { user, signInWithGoogle, signinWithEmail } = useAuthContext();
+  const { user, signInWithGoogle, sendEmailLink, signInWithEmail } =
+    useAuthContext();
+
+  const [signupPage, setSignupPage] = useState(false);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    signInWithEmail();
+  });
 
   useEffect(() => {
     // Check if the user signed in or not
@@ -29,7 +37,7 @@ function AuthPage() {
     const email = emailRef.current.value;
 
     try {
-      let result = await signinWithEmail(email);
+      let result = await sendEmailLink(email);
       if (result) console.log("email saved to localStorage");
     } catch (err) {
       console.error(err);
@@ -46,19 +54,9 @@ function AuthPage() {
     } else console.log("Error signing in");
   };
 
-  const AuthWrapperSect = () => {
+  const SignInSection = () => {
     return (
-      <div className="wrapper flex-center max-md:hidden md:col-span-2 xl:col-span-3">
-        <div className="animation w-full max-w-sm">
-          <Lottie animationData={authAnimation} />
-        </div>
-      </div>
-    );
-  };
-
-  const AuthContentSect = () => {
-    return (
-      <div className="content col-span-6 flex flex-col items-center justify-center gap-10 border bg-white px-4 py-14 shadow-lg md:col-span-4 md:m-2 md:rounded-xl xl:col-span-3">
+      <>
         <div className="heading flex-center w-full max-w-xs flex-col">
           <img src={brand_logo} alt="" className="mb-6 h-10 w-10" />
           <h2>Welcome back!</h2>
@@ -68,7 +66,7 @@ function AuthPage() {
         <form className="w-full max-w-xs" onSubmit={handleEmailAuth}>
           <div className="email-pass-container flex flex-col gap-2">
             <input
-              className="border-primary placeholder:text-primary border-b bg-transparent px-1 py-3 text-base placeholder:text-sm focus:outline-none"
+              className="border-b border-primary bg-transparent px-1 py-3 text-base placeholder:text-sm placeholder:text-primary focus:outline-none"
               type="email"
               name="email"
               ref={emailRef}
@@ -78,7 +76,7 @@ function AuthPage() {
             />
           </div>
 
-          <div className="btn-container divide-dim mt-10 flex flex-col divide-y divide-opacity-20">
+          <div className="btn-container mt-10 flex flex-col divide-y divide-dim divide-opacity-20">
             <div className="pb-4">
               <PrimaryBtn text={"Continue"} icon={arrow_right} />
             </div>
@@ -91,10 +89,64 @@ function AuthPage() {
         <div className="footer">
           <p className="text-sm">
             Don&apos;t have an account?
-            <Link className="ml-1 text-sm font-medium">Sign up</Link>
+            <button
+              type="button"
+              onClick={() => setSignupPage(!signupPage)}
+              className="ml-1 text-sm font-medium"
+            >
+              Sign up
+            </button>
           </p>
         </div>
-      </div>
+      </>
+    );
+  };
+
+  const SignUpSection = () => {
+    return (
+      <>
+        <div className="heading flex-center w-full max-w-xs flex-col">
+          <img src={brand_logo} alt="" className="mb-6 h-10 w-10" />
+          <h2>Oh hey there!</h2>
+          <p className="mt-2 text-sm">Please sign up to continue</p>
+        </div>
+
+        <form className="w-full max-w-xs" onSubmit={handleEmailAuth}>
+          <div className="email-pass-container flex flex-col gap-2">
+            <input
+              className="border-b border-primary bg-transparent px-1 py-3 text-base placeholder:text-sm placeholder:text-primary focus:outline-none"
+              type="email"
+              name="email"
+              ref={emailRef}
+              placeholder={"Email"}
+              required
+              autoFocus
+            />
+          </div>
+
+          <div className="btn-container mt-10 flex flex-col divide-y divide-dim divide-opacity-20">
+            <div className="pb-4">
+              <PrimaryBtn text={"Continue"} icon={arrow_right} />
+            </div>
+            <div className="pt-4">
+              <GoogleBtn onClick={handleGoogleAuth} />
+            </div>
+          </div>
+        </form>
+
+        <div className="footer">
+          <p className="text-sm">
+            Already have an account?
+            <button
+              type="button"
+              onClick={() => setSignupPage(!signupPage)}
+              className="ml-1 text-sm font-medium"
+            >
+              Sign in
+            </button>
+          </p>
+        </div>
+      </>
     );
   };
 
@@ -102,8 +154,17 @@ function AuthPage() {
 
   return (
     <div className="grid min-h-screen grid-cols-6 gap-4">
-      <AuthWrapperSect />
-      <AuthContentSect />
+      {/* auth page wrapper */}
+      <div className="wrapper flex-center max-md:hidden md:col-span-2 xl:col-span-3">
+        <div className="animation w-full max-w-sm">
+          <Lottie animationData={authAnimation} />
+        </div>
+      </div>
+
+      {/* auth page content */}
+      <div className="content col-span-6 flex flex-col items-center justify-center gap-10 border bg-white px-4 py-14 shadow-lg md:col-span-4 md:m-2 md:rounded-xl xl:col-span-3">
+        {signupPage ? <SignUpSection /> : <SignInSection />}
+      </div>
     </div>
   );
 }

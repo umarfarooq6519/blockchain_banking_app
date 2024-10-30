@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { getAuth, sendSignInLinkToEmail, signOut } from "firebase/auth";
+import {
+  getAuth,
+  isSignInWithEmailLink,
+  sendSignInLinkToEmail,
+  signOut,
+} from "firebase/auth";
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -54,7 +59,7 @@ function useAuth() {
     }
   };
 
-  const signinWithEmail = async (email) => {
+  const sendEmailLink = async (email) => {
     setIsLoading(true);
     try {
       await sendSignInLinkToEmail(auth, email, actionCodeSettings);
@@ -65,6 +70,23 @@ function useAuth() {
       return false;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const signInWithEmail = async () => {
+    const email = window.localStorage.getItem("signinEmail");
+    const link = window.location.href;
+
+    if (isSignInWithEmailLink(auth, link)) {
+      try {
+        const result = await signInWithEmail(auth, email, link);
+        console.log("Success Signin", result);  
+        setUser(result.user);
+
+        window.localStorage.removeItem("signinEmail");
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -89,7 +111,8 @@ function useAuth() {
     error,
     setError,
     signInWithGoogle,
-    signinWithEmail,
+    sendEmailLink,
+    signInWithEmail,
     Signout,
   };
 }
